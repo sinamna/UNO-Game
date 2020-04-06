@@ -1,12 +1,13 @@
-public class Card {
+public abstract class Card {
     private int score;
     public Card (int score){
         this.score=score;
     }
 
-    public boolean checkPlacingCondition(Card card){
-        return true;
-    }
+    public abstract boolean checkPlacingCondition(Card card);
+    public abstract void print();
+
+
     public int getScore() {
         return score;
     }

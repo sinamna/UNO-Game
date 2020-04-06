@@ -24,7 +24,9 @@ public class DrawCard extends ActionCard {
     }
 
     //draw action
-    public void cardAction(ArrayList<Player> players,int playerIndex){
-
+    public void action(int playerIndex,ArrayList<Player> players){
+        int nextPlayerIndex=(playerIndex+1)%players.size();
+        for(int i=1;i<3;i++)players.get(nextPlayerIndex).takeCard();
+        players.get((playerIndex+2)%players.size()).setPlayTurn(true);
     }
 }

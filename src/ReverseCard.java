@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class ReverseCard extends ActionCard {
     public ReverseCard(String color){
         super(color);
@@ -22,4 +25,9 @@ public class ReverseCard extends ActionCard {
         return false;
     }
     //reverse action
+    public void action(Integer playerIndex, ArrayList<Player> players){
+        Player tempPlayer=players.get(playerIndex);
+        Collections.reverse(players);
+        playerIndex=players.indexOf(tempPlayer);
+    }
 }

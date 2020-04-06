@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class SkipCard extends ActionCard {
     public SkipCard(String color){
         super(color);
@@ -20,5 +22,8 @@ public class SkipCard extends ActionCard {
             return wildCard.getNextCardColor().equals(this.getColor());
         }
         return false;
+    }
+    public void action(int playerIndex, ArrayList<Player> players){
+        players.get((playerIndex+2)%players.size()).setPlayTurn(true);
     }
 }
