@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class ColoredCard extends Card {
+public abstract class ColoredCard extends Card {
     private String color;
     public ColoredCard(String color,int score){
         super(score);
@@ -12,10 +12,7 @@ public class ColoredCard extends Card {
     public void action(Integer playerIndex, ArrayList<Player> players){
         players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
-    @Override
-    public boolean checkPlacingCondition(Card card) {
-        return false;
-    }
+    public abstract boolean checkPlacingCondition(Card card);
 
     @Override
     public void print() {

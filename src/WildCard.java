@@ -46,8 +46,19 @@ public class WildCard extends Card {
         }
     }
 
-    @Override
-    public boolean checkPlacingCondition(Card card) {
-        return true;
+    public boolean checkPlacingCondition(ArrayList<Card> playerCards,Card tableCard) {
+        boolean canPlace=true;
+        for (Card card : playerCards) {
+            if (card instanceof Numerical) {
+                Numerical numCard = (Numerical) card;
+                if (numCard.checkPlacingCondition(tableCard))
+                    canPlace = false;
+            } else if (card instanceof ActionCard) {
+                ActionCard actionCard = (ActionCard) card;
+                if (actionCard.checkPlacingCondition(tableCard))
+                    canPlace = false;
+            }
+        }
+        return canPlace;
     }
 }
