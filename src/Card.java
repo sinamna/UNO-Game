@@ -6,8 +6,6 @@ public abstract class Card {
 
     public abstract boolean checkPlacingCondition(Card card);
     public abstract void print();
-
-
     public int getScore() {
         return score;
     }

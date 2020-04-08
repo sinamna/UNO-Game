@@ -23,9 +23,17 @@ public class DrawCard extends ActionCard {
        return false;
     }
 
+    @Override
+    public void print() {
+        System.out.println(this.getColor()+" draw card");
+    }
+
     //draw action
-    public void action(int playerIndex,ArrayList<Player> players){
+    @Override
+    public void action(Integer playerIndex,ArrayList<Player> players){
+        //System.out.println(playerIndex);
         int nextPlayerIndex=(playerIndex+1)%players.size();
+        System.out.printf("Player %d lost its turn \n",playerIndex+2);
         for(int i=1;i<3;i++)players.get(nextPlayerIndex).takeCard();
         players.get((playerIndex+2)%players.size()).setPlayTurn(true);
     }

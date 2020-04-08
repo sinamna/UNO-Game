@@ -16,6 +16,7 @@ public class PlayTable {
     }
     // a method for putting card in the middle
     public void putCardOnTable(Card cardToBePut){
+        cardStorage.addToStorage(cardOnTable);
         cardOnTable=cardToBePut;
     }
     // a method for printing the whole table        KINDA GREAT IMPORTANT
@@ -62,9 +63,17 @@ public class PlayTable {
         players.get(turnCounter).setPlayTurn(true);
         while(!endingCondition()){
             if(players.get(turnCounter).getPlayTurn()) {
-                players.get(turnCounter).playTurn(turnCounter,players);
+                players.get(turnCounter).playTurn(turnCounter);
             }
             turnCounter = (turnCounter + 1) % players.size();
         }
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public Card getCardOnTable() {
+        return cardOnTable;
     }
 }

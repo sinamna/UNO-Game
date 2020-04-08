@@ -5,6 +5,7 @@ public class Main {
         Scanner input=new Scanner(System.in);
         CardStorage storage=new CardStorage();
         PlayTable playTable=new PlayTable(storage);
-        for(int i=1;i<=4;i++)playTable.addPlayer(new Player(i,storage));
+        for(int i=1;i<=4;i++)playTable.addPlayer(new Player(i,storage,playTable));
+        playTable.playGame();
     }
 }

@@ -23,7 +23,12 @@ public class SkipCard extends ActionCard {
         }
         return false;
     }
-    public void action(int playerIndex, ArrayList<Player> players){
+    @Override
+    public void print() {
+        System.out.println(this.getColor()+" Skip card");
+    }
+    public void action(Integer playerIndex, ArrayList<Player> players){
+        System.out.printf("Player %d skipped \n",playerIndex+1);
         players.get((playerIndex+2)%players.size()).setPlayTurn(true);
     }
 }

@@ -28,7 +28,24 @@ public class WildCard extends Card {
     public String getNextCardColor() {
         return nextCardColor;
     }
+
+    @Override
+    public void print() {
+        System.out.println("WildCard - "+this.type);
+    }
+
     // action -> type comes handy
+    public void action(Integer playerIndex,ArrayList<Player> players){
+        if(type.equals("drawFour")){
+            this.takeNextCardColor();
+            players.get((playerIndex+2)%players.size()).setPlayTurn(true);
+            for(int i=1;i<=4;i++)players.get((playerIndex+2)%players.size()).takeCard();
+        }else{
+            this.takeNextCardColor();
+            players.get((playerIndex+1)%players.size()).setPlayTurn(true);
+        }
+    }
+
     @Override
     public boolean checkPlacingCondition(Card card) {
         return true;

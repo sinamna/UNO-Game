@@ -24,10 +24,16 @@ public class ReverseCard extends ActionCard {
         }
         return false;
     }
+    @Override
+    public void print() {
+        System.out.println(this.getColor()+" Reverse card");
+    }
     //reverse action
+    @Override
     public void action(Integer playerIndex, ArrayList<Player> players){
         Player tempPlayer=players.get(playerIndex);
         Collections.reverse(players);
         playerIndex=players.indexOf(tempPlayer);
+        players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
 }

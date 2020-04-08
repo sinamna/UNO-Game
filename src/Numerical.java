@@ -10,7 +10,10 @@ public class Numerical extends ColoredCard {
     public int getCardNumber() {
         return cardNumber;
     }
-
+    @Override
+    public void print() {
+        System.out.println(this.getColor()+" "+this.getCardNumber());
+    }
     @Override
     public boolean checkPlacingCondition(Card card) {
         if (card instanceof Numerical) {
