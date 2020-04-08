@@ -1,12 +1,9 @@
-import com.sun.xml.internal.ws.policy.EffectiveAlternativeSelector;
-import org.omg.PortableInterceptor.ACTIVE;
 
-import java.awt.*;
 import java.util.*;
 
 public class Player {
-    ArrayList<Card> cards;
-    CardStorage cardStorage;
+    private ArrayList<Card> cards;
+    private CardStorage cardStorage;
     private int playerId;
     private boolean playTurn;
     private PlayTable playTable;
@@ -30,7 +27,27 @@ public class Player {
         ArrayList<Player> players = playTable.getPlayers();
         printCards();
         Card chosenCard = this.chooseCard();
+        //if chosenCard is null it means a new card is added to the list
+        if(chosenCard==null) {
+            if(!mustAddCard()){
+                //add sth here to determine he can choose again
+                printCards();
+                Card secondChosenCard = this.chooseCard();
+                this.cardAction(playTable.getPlayers(),playerTurnIndex,secondChosenCard);
+            }else{
+                players.get((playerTurnIndex+1)%players.size()).setPlayTurn(true);
+            }
+        }else{
+            this.cardAction(playTable.getPlayers(),playerTurnIndex,chosenCard);
+        }
+        this.setPlayTurn(false);
+    }
+    private void cardAction(ArrayList<Player>players,Integer playerTurnIndex,Card chosenCard){
+//        printCards();
+//        Card chosenCard = this.chooseCard();
         if (chosenCard instanceof ColoredCard) {
+            //the action of coloredCards(except action ones) is to set next players turn boolean
+            //variable as true
             ((ColoredCard) chosenCard).action(playerTurnIndex, players);
         } else if (chosenCard instanceof WildCard) {
             ((WildCard) chosenCard).action(playerTurnIndex, players);
@@ -38,13 +55,7 @@ public class Player {
         //removes chosen card from list and puts it on table
         playTable.putCardOnTable(chosenCard);
         cards.remove(chosenCard);
-        // dont remember to change playturn false at the end;
-        this.setPlayTurn(false);
     }
-
-    // this method checks the cards and see if there is possible
-
-
     // a method for choosing a card from the list
     public Card chooseCard() {
         Scanner input = new Scanner(System.in);
@@ -52,24 +63,28 @@ public class Player {
         while (true) {
             try {
                 int cardIndex = input.nextInt();
-                Card chosenCard = cards.get(cardIndex - 1);
-                if(chosenCard instanceof WildCard){
-                    WildCard wildcard=(WildCard)chosenCard;
-                    if(wildcard.checkPlacingCondition(cards,playTable.getCardOnTable()))
-                        return wildcard;
+                if(cardIndex==cards.size()+1&&this.mustAddCard()){
+                    cards.add(cardStorage.randomPicking());
+                    return null;
                 }
-                else if (chosenCard instanceof ColoredCard) {
-                    ColoredCard coloredCard =(ColoredCard)chosenCard;
-                    if(coloredCard.checkPlacingCondition(playTable.getCardOnTable()))
+                Card chosenCard = cards.get(cardIndex - 1);
+                if (chosenCard instanceof WildCard) {
+                    WildCard wildcard = (WildCard) chosenCard;
+                    if (wildcard.checkPlacingCondition(cards, playTable.getCardOnTable()))
+                        return wildcard;
+                } else if (chosenCard instanceof ColoredCard) {
+                    ColoredCard coloredCard = (ColoredCard) chosenCard;
+                    if (coloredCard.checkPlacingCondition(playTable.getCardOnTable()))
                         return coloredCard;
                 }
-                    System.out.println("This Card can not be placed on table");
+                System.out.println("This Card can not be placed on table");
 
             } catch (Exception e) {
                 System.out.println("Please enter the correct number");
             }
         }
     }
+
     // a method for printing players cards
     private void printCards() {
         int index = 1;
@@ -87,12 +102,29 @@ public class Player {
             }
             index++;
         }
-        /*if (!this.availableCard())
-            System.out.printf("%d - pick card from storage\n", index);
-
-         */
+        if(mustAddCard())
+            System.out.printf("%d - add card\n",index);
     }
-
+    private boolean mustAddCard(){
+        Card tableCard=playTable.getCardOnTable();
+        boolean mustAdd=true;
+        for(Card card :cards){
+            if(card instanceof Numerical){
+                Numerical numCard=(Numerical)card;
+                if(numCard.checkPlacingCondition(tableCard))
+                    mustAdd=false;
+            }else if(card instanceof ActionCard){
+                ActionCard actionCard=(ActionCard)card;
+                if(actionCard.checkPlacingCondition(tableCard))
+                    mustAdd=false;
+            }else if(card instanceof WildCard){
+                WildCard wildCard=(WildCard) card;
+                if(wildCard.checkPlacingCondition(cards,tableCard))
+                    mustAdd=false;
+            }
+        }
+        return mustAdd;
+    }
     // a method for picking seven random card from storage
     private void setInitialCards() {
         for (int i = 1; i <= 7; i++) {

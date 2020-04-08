@@ -7,5 +7,6 @@ public class Main {
         PlayTable playTable=new PlayTable(storage);
         for(int i=1;i<=4;i++)playTable.addPlayer(new Player(i,storage,playTable));
         playTable.playGame();
+        playTable.printScoreBoard();
     }
 }
