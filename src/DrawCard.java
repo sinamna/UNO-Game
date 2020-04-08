@@ -31,10 +31,17 @@ public class DrawCard extends ActionCard {
     //draw action
     @Override
     public void action(Integer playerIndex,ArrayList<Player> players){
-        //System.out.println(playerIndex);
-        int nextPlayerIndex=(playerIndex+1)%players.size();
+            int nextPlayerIndex=(playerIndex+1)%players.size();
+            System.out.printf("Player %d lost its turn \n",(playerIndex+1)%players.size()+1);
+            for(int i=1;i<3;i++)players.get(nextPlayerIndex).takeCard();
+            players.get((playerIndex+2)%players.size()).setPlayTurn(true);
+
+    }
+    @Override
+    public void firstAct(Integer playerIndex, ArrayList<Player> players) {
+        players.get(playerIndex).setPlayTurn(false);
         System.out.printf("Player %d lost its turn \n",(playerIndex+1)%players.size()+1);
-        for(int i=1;i<3;i++)players.get(nextPlayerIndex).takeCard();
-        players.get((playerIndex+2)%players.size()).setPlayTurn(true);
+        for(int i=1;i<=2;i++)players.get(playerIndex).takeCard();
+        players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
 }

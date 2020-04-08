@@ -7,4 +7,5 @@ public abstract class ActionCard extends ColoredCard{
     //draw action
     public abstract boolean checkPlacingCondition(Card card);
     public abstract void action(Integer playerIndex, ArrayList<Player> players);
+    public abstract void firstAct(Integer playerIndex,ArrayList<Player>players);
 }

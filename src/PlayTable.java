@@ -5,12 +5,37 @@ public class PlayTable {
     private ArrayList<Player> players;
     private CardStorage cardStorage;
     private Card cardOnTable;
-
+    private int drawInRow;
+    private int wildDrawInRow;
     public PlayTable(CardStorage cardStorage) {
         this.cardStorage = cardStorage;
         players = new ArrayList<>();
         putFirstCard();
+        drawInRow=0;
+        wildDrawInRow=0;
     }
+    public void increaseDrawNum(){
+        drawInRow++;
+    }
+    public void increaseWildNum(){
+        wildDrawInRow++;
+    }
+    public void resetWildNum(){
+        wildDrawInRow=0;
+    }
+
+    public int getWildDrawInRow() {
+        return wildDrawInRow;
+    }
+
+    public void resetDrawNum(){
+        drawInRow=0;
+    }
+
+    public int getDrawInRow() {
+        return drawInRow;
+    }
+
     public void addPlayer(Player player){
         players.add(player);
     }
@@ -32,6 +57,7 @@ public class PlayTable {
                 cardStorage.addToStorage(cardOnTable);
         }
         this.cardOnTable = cardOnTable;
+
     }
     // ending condition
     private boolean endingCondition(){
@@ -61,6 +87,10 @@ public class PlayTable {
         // creating random first player
         Integer turnCounter=new Integer (randomGen.nextInt(players.size()));
         players.get(turnCounter).setPlayTurn(true);
+        if(cardOnTable instanceof ActionCard){
+            ActionCard actionCard=(ActionCard) cardOnTable;
+            actionCard.firstAct(turnCounter,players);
+        }
         while(!endingCondition()){
             if(players.get(turnCounter).getPlayTurn()) {
                 players.get(turnCounter).playTurn(turnCounter);

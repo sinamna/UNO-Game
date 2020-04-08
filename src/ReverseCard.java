@@ -36,4 +36,13 @@ public class ReverseCard extends ActionCard {
         playerIndex=players.indexOf(tempPlayer);
         players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
+
+    @Override
+    public void firstAct(Integer playerIndex, ArrayList<Player> players) {
+        players.get(playerIndex).setPlayTurn(false);
+        Player tempPlayer=players.get(playerIndex);
+        Collections.reverse(players);
+        playerIndex=players.indexOf(tempPlayer);
+        players.get((playerIndex+1)%players.size()).setPlayTurn(true);
+    }
 }

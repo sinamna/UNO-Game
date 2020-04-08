@@ -28,7 +28,13 @@ public class SkipCard extends ActionCard {
         System.out.println(this.getColor()+" Skip card");
     }
     public void action(Integer playerIndex, ArrayList<Player> players){
-        System.out.printf("Player %d skipped \n",playerIndex+1);
+        System.out.printf("Player %d skipped \n",(playerIndex+1)%players.size()+1);
         players.get((playerIndex+2)%players.size()).setPlayTurn(true);
+    }
+
+    @Override
+    public void firstAct(Integer playerIndex, ArrayList<Player> players) {
+        players.get(playerIndex).setPlayTurn(false);
+        players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
 }

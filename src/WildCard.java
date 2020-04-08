@@ -29,6 +29,10 @@ public class WildCard extends Card {
         return nextCardColor;
     }
 
+    public String getType() {
+        return type;
+    }
+
     @Override
     public void print() {
         System.out.println("WildCard - " + this.type);
@@ -39,7 +43,7 @@ public class WildCard extends Card {
         if (type.equals("drawFour")) {
             this.takeNextCardColor();
             players.get((playerIndex + 2) % players.size()).setPlayTurn(true);
-            for (int i = 1; i <= 4; i++) players.get((playerIndex + 2) % players.size()).takeCard();
+            for (int i = 1; i <= 4; i++) players.get((playerIndex + 1) % players.size()).takeCard();
         } else {
             this.takeNextCardColor();
             players.get((playerIndex + 1) % players.size()).setPlayTurn(true);
@@ -59,6 +63,6 @@ public class WildCard extends Card {
                     canPlace = false;
             }
         }
-        return canPlace;
+        return !type.equals("drawFour") || canPlace;
     }
 }
