@@ -2,15 +2,27 @@ import java.util.*;
 
 public class CardStorage {
     private ArrayList<Card> cards;
+
+    /**
+     * constructs card storage with list of cards
+     */
     public CardStorage(){
         cards=new ArrayList<>();
         setInitialState();
     }
-    //adding to the storage
+
+    /**
+     * adds card to storage
+     * @param card the card to be add to storage
+     */
     public void addToStorage(Card card){
         cards.add(card);
     }
-    //random picking from storage
+
+    /**
+     * picks a random card from storage and returns it
+     * @return the randomly picked card
+     */
     public Card randomPicking(){
         Random randomGenerator=new Random();
         int indexOfCard=randomGenerator.nextInt(cards.size());
@@ -18,7 +30,10 @@ public class CardStorage {
         cards.remove(indexOfCard);
         return cardChosen;
     }
-    //creating first state of storage
+
+    /**
+     * adds the first 108 card to storage
+     */
     private void setInitialState(){
         String[] colors={"Red","Green","Blue","Yellow"};
         for(String color:colors){

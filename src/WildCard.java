@@ -13,6 +13,10 @@ public class WildCard extends Card {
     }
 
     // a method to take user input for choosing nextCardColor
+
+    /**
+     * Takes the color of next card from user
+     */
     public void takeNextCardColor() {
         Scanner input = new Scanner(System.in);
         String[] colors = {"Green", "Blue", "Yellow", "Red"};
@@ -23,12 +27,21 @@ public class WildCard extends Card {
             index++;
         }
         nextCardColor = colors[input.nextInt() - 1];
+
     }
 
+    /**
+     *
+     * @return returns the color of next Card that should be on table
+     */
     public String getNextCardColor() {
         return nextCardColor;
     }
 
+    /**
+     *
+     * @return  the type of WildCard (Normal or fourDraw)
+     */
     public String getType() {
         return type;
     }
@@ -50,7 +63,16 @@ public class WildCard extends Card {
         }
     }
 
+    /**
+     * checks if card can be placed based on the card on the table
+     * @param playerCards the list of player's cards
+     * @param tableCard the card which is placed on table
+     * @return true if it is possible to place the card, false if it is not
+     */
     public boolean checkPlacingCondition(ArrayList<Card> playerCards, Card tableCard) {
+        /*
+            goes throw the cards and allows to put if no other cards could be placed on table
+         */
         boolean canPlace = true;
         for (Card card : playerCards) {
             if (card instanceof Numerical) {
@@ -63,6 +85,6 @@ public class WildCard extends Card {
                     canPlace = false;
             }
         }
-        return !type.equals("drawFour") || canPlace;
+        return type.equals("normal") || canPlace;
     }
 }

@@ -1,4 +1,6 @@
 
+import java.awt.*;
+import java.net.BindException;
 import java.util.*;
 
 public class Player {
@@ -7,7 +9,6 @@ public class Player {
     private int playerId;
     private boolean playTurn;
     private PlayTable playTable;
-    private int drawsInRow;
     public Player(int playerId, CardStorage cardStorage, PlayTable playTable) {
         this.playerId = playerId;
         this.cardStorage = cardStorage;
@@ -15,7 +16,6 @@ public class Player {
         cards = new ArrayList<>();
         this.setInitialCards();
         playTurn = false;
-        drawsInRow=0;
     }
     public int getPlayerId() {
         return playerId;
@@ -24,6 +24,8 @@ public class Player {
         return cards;
     }
     public void playTurn(Integer playerTurnIndex) {
+        this.printPlayers();
+        playTable.printTable();
         playTable.getCardOnTable().print();
         System.out.println("Player " + this.getPlayerId());
         ArrayList<Player> players = playTable.getPlayers();
@@ -66,8 +68,6 @@ public class Player {
     private void cardAction(ArrayList<Player>players,Integer playerTurnIndex,Card chosenCard){
         Player nextPlayer = players.get((playerTurnIndex + 1) % players.size());
         if (chosenCard instanceof ColoredCard) {
-            //the action of coloredCards(except action ones) is to set next players turn boolean
-            //variable as true
             if(chosenCard instanceof DrawCard){
                 if(nextDrawFound(nextPlayer.getCards())&&((DrawCard) chosenCard).checkPlacingCondition(playTable.getCardOnTable())){
                     playTable.increaseDrawNum();
@@ -99,6 +99,7 @@ public class Player {
                             nextPlayer.takeCard();
                 }
                 ((WildCard) chosenCard).action(playerTurnIndex, players);
+                playTable.setNextColor(((WildCard) chosenCard).getNextCardColor());
                 playTable.resetWildNum();
             }
         }
@@ -219,5 +220,64 @@ public class Player {
     @Override
     public String toString() {
         return String.format("Player %d -> %d score", playerId, getScore());
+    }
+    public void printPlayers() {
+        //12 *5 characters
+        ArrayList<Player> players = playTable.getPlayers();
+        for (int j = 1; j <= 5; j++) {
+            int index = 0;
+            for (int k = 0; k < playTable.getPlayers().size() - 1; k++) {
+                if (players.get(index).getPlayerId() == this.playerId)
+                    index = (index + 1) % players.size();
+                System.out.print("    ");//4 spaces
+                if (j == 1 || j == 5) {
+                    System.out.print("------------");
+                } else {
+                    if (j == 2)
+                        System.out.printf("| Player %d |", players.get(index).getPlayerId());
+                    else if (j == 4) System.out.printf("| cards %2d |", players.get(index).getCards().size());
+                    else System.out.print("|          |");
+                }
+                index++;
+            }
+            System.out.println();
+        }
+    }
+    public static String[] cardDetails(Card card) {
+        StringBuilder str = new StringBuilder();
+        char cardSymbol = 0;
+        if (card instanceof Numerical) {
+            str.append(String.format("Number/c/%d/", ((Numerical) card).getCardNumber()));
+        } else if (card instanceof SkipCard) {
+            str.append("Skip/c/ /");
+        } else if (card instanceof DrawCard) {
+            str.append("Draw/c/ /");
+        } else if (card instanceof ReverseCard) {
+            str.append("Rev/c/ /");
+        } else if (card instanceof WildCard) {
+            if (((WildCard) card).getType().equals("normal"))
+                str.append("Wild/c/ /");
+            else
+                str.append("Wild/c/Dfour/");
+        }
+        if (card instanceof ColoredCard) {
+            if (((ColoredCard) card).getColor().equals("Blue")) {
+                cardSymbol = 'B';
+                str.append("\u001B[34m");
+            } else if (((ColoredCard) card).getColor().equals("Red")) {
+                cardSymbol = 'R';
+                str.append("\u001B[31m");
+            } else if (((ColoredCard) card).getColor().equals("Yellow")) {
+                cardSymbol = 'Y';
+                str.append("\u001B[33m");
+            } else if (((ColoredCard) card).getColor().equals("Green")) {
+                cardSymbol = 'G';
+                str.append("\u001B[92m");
+            }
+        } else {
+            cardSymbol = 'W';
+            str.append("\u001B[37m");
+        }
+        return str.toString().replace('c', cardSymbol).split("/");
     }
 }

@@ -5,7 +5,12 @@ public class ReverseCard extends ActionCard {
     public ReverseCard(String color){
         super(color);
     }
-    //check placing condition move
+
+    /**
+     * checks if card can be placed on table or not
+     * @param card the card which is on table
+     * @return returns true if it is possible to place card on table
+     */
     @Override
     public boolean checkPlacingCondition(Card card){
         if(card instanceof Numerical){
@@ -24,11 +29,20 @@ public class ReverseCard extends ActionCard {
         }
         return false;
     }
+
+    /**
+     * prints the card table
+     */
     @Override
     public void print() {
         System.out.println(this.getColor()+" Reverse card");
     }
-    //reverse action
+
+    /**
+     * reverse the game playing turns
+     * @param playerIndex the index of player in the players list of game table
+     * @param players the list of players of game table
+     */
     @Override
     public void action(Integer playerIndex, ArrayList<Player> players){
         Player tempPlayer=players.get(playerIndex);
@@ -37,6 +51,11 @@ public class ReverseCard extends ActionCard {
         players.get((playerIndex+1)%players.size()).setPlayTurn(true);
     }
 
+    /**
+     * reverse the game playing turns if it hits the first player who starts the game
+     * @param playerIndex the index of player in the players list
+     * @param players the list of player of game table
+     */
     @Override
     public void firstAct(Integer playerIndex, ArrayList<Player> players) {
         players.get(playerIndex).setPlayTurn(false);
