@@ -9,6 +9,7 @@ public class Player {
     private int playerId;
     private boolean playTurn;
     private PlayTable playTable;
+
     public Player(int playerId, CardStorage cardStorage, PlayTable playTable) {
         this.playerId = playerId;
         this.cardStorage = cardStorage;
@@ -17,85 +18,94 @@ public class Player {
         this.setInitialCards();
         playTurn = false;
     }
+
     public int getPlayerId() {
         return playerId;
     }
+
     public ArrayList<Card> getCards() {
         return cards;
     }
+
     public void playTurn(Integer playerTurnIndex) {
+        System.out.println("_____________________________________________________________________________________________________");
         this.printPlayers();
-        playTable.printTable();
-        playTable.getCardOnTable().print();
-        System.out.println("Player " + this.getPlayerId());
+        playTable.printTable(getPlayerId());
         ArrayList<Player> players = playTable.getPlayers();
         printCards();
         Card chosenCard = this.chooseCard();
         //if chosenCard is null it means a new card is added to the list
-        if(chosenCard==null) {
-            if(!mustAddCard()){
+        if (chosenCard == null) {
+            if (!mustAddCard()) {
                 printCards();
                 Card secondChosenCard = this.chooseCard();
-                this.cardAction(playTable.getPlayers(),playerTurnIndex,secondChosenCard);
-            }else{
-                players.get((playerTurnIndex+1)%players.size()).setPlayTurn(true);
+                this.cardAction(playTable.getPlayers(), playerTurnIndex, secondChosenCard);
+            } else {
+                players.get((playerTurnIndex + 1) % players.size()).setPlayTurn(true);
             }
-        }else{
-            this.cardAction(playTable.getPlayers(),playerTurnIndex,chosenCard);
+        } else {
+            this.cardAction(playTable.getPlayers(), playerTurnIndex, chosenCard);
         }
         this.setPlayTurn(false);
     }
-    private boolean nextDrawFound(ArrayList<Card>nextPlayerCards){
-        boolean found=false;
-        for(Card card :nextPlayerCards){
-            if(card instanceof DrawCard){
-                found=true;
-                break;
-            }
-        }
-        return found;
-    }
-    private boolean nextWildDrawFound(ArrayList<Card>nextPlayerCard){
-        boolean found=false;
-        for(Card card:nextPlayerCard){
-            if(card instanceof WildCard && ((WildCard) card).getType().equals("drawFour")) {
+
+    private boolean nextDrawFound(ArrayList<Card> nextPlayerCards) {
+        boolean found = false;
+        for (Card card : nextPlayerCards) {
+            if (card instanceof DrawCard) {
                 found = true;
                 break;
             }
         }
         return found;
     }
-    private void cardAction(ArrayList<Player>players,Integer playerTurnIndex,Card chosenCard){
+
+    private boolean nextWildDrawFound(ArrayList<Card> nextPlayerCard) {
+        boolean found = false;
+        for (Card card : nextPlayerCard) {
+            if (card instanceof WildCard && ((WildCard) card).getType().equals("drawFour")) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    private void cardAction(ArrayList<Player> players, Integer playerTurnIndex, Card chosenCard) {
         Player nextPlayer = players.get((playerTurnIndex + 1) % players.size());
         if (chosenCard instanceof ColoredCard) {
-            if(chosenCard instanceof DrawCard){
-                if(nextDrawFound(nextPlayer.getCards())&&((DrawCard) chosenCard).checkPlacingCondition(playTable.getCardOnTable())){
+            if (chosenCard instanceof DrawCard) {
+                if (nextDrawFound(nextPlayer.getCards()) && ((DrawCard) chosenCard).checkPlacingCondition(playTable.getCardOnTable())) {
                     playTable.increaseDrawNum();
                     //remember to check input when draw num is >0
                     nextPlayer.setPlayTurn(true);
-                }else{
-                    if(playTable.getDrawInRow()>0) {
+                } else {
+                    if (playTable.getDrawInRow() > 0) {
                         for (int i = 1; i <= playTable.getDrawInRow(); i++)
                             for (int j = 1; j <= 2; j++)
                                 nextPlayer.takeCard();
                     }
-                       DrawCard drawCard=(DrawCard) chosenCard;
-                       drawCard.action(playerTurnIndex,players);
-                       playTable.resetDrawNum();
+                    DrawCard drawCard = (DrawCard) chosenCard;
+                    drawCard.action(playerTurnIndex, players);
+                    playTable.resetDrawNum();
                 }
-            }else{
+            } else {
                 ((ColoredCard) chosenCard).action(playerTurnIndex, players);
+
+                if(chosenCard instanceof ReverseCard)
+                    playTable.reversePlayOrder();
+
             }
         } else if (chosenCard instanceof WildCard) {
-            Player thisPlayer=players.get(playerTurnIndex);
-            boolean canPlaceCard=((WildCard) chosenCard).checkPlacingCondition(thisPlayer.getCards(),playTable.getCardOnTable());
-            if(nextWildDrawFound(nextPlayer.getCards())&&canPlaceCard){
+            Player thisPlayer = players.get(playerTurnIndex);
+            boolean canPlaceCard = ((WildCard) chosenCard).checkPlacingCondition(thisPlayer.getCards(), playTable.getCardOnTable());
+            if (nextWildDrawFound(nextPlayer.getCards()) && canPlaceCard&&((WildCard) chosenCard).getType().equals("drawFour")) {
                 playTable.increaseWildNum();
                 nextPlayer.setPlayTurn(true);
-            }else{
-                if(playTable.getWildDrawInRow()>0){
-                    for(int i=1;i<=playTable.getWildDrawInRow();i++)
-                        for(int j=1;j<=4;i++)
+            } else {
+                if (playTable.getWildDrawInRow() > 0) {
+                    for (int i = 1; i <= playTable.getWildDrawInRow(); i++)
+                        for (int j = 1; j <= 4; i++)
                             nextPlayer.takeCard();
                 }
                 ((WildCard) chosenCard).action(playerTurnIndex, players);
@@ -107,34 +117,36 @@ public class Player {
         playTable.putCardOnTable(chosenCard);
         cards.remove(chosenCard);
     }
+
     // a method for choosing a card from the list
     public Card chooseCard() {
+
         Scanner input = new Scanner(System.in);
-        if(playTable.getWildDrawInRow()>0 || playTable.getDrawInRow()>0){
-            System.out.printf("You must choose %s \n",playTable.getDrawInRow()>0?"Draw card":"WildCard draw4");
-        }else{
+        if (playTable.getWildDrawInRow() > 0 || playTable.getDrawInRow() > 0) {
+            System.out.printf("You must choose %s \n", playTable.getDrawInRow() > 0 ? "Draw card" : "WildCard draw4");
+        } else {
             System.out.println("Which card do you choose ?");
         }
         while (true) {
             try {
                 int cardIndex = input.nextInt();
-                if(cardIndex==cards.size()+1&&this.mustAddCard()){
+                if (cardIndex == cards.size() + 1 && this.mustAddCard()) {
                     cards.add(cardStorage.randomPicking());
                     return null;
                 }
                 Card chosenCard = cards.get(cardIndex - 1);
                 if (chosenCard instanceof WildCard) {
                     WildCard wildcard = (WildCard) chosenCard;
-                    if(wildcard.getType().equals("drawFour")&&playTable.getWildDrawInRow()>0)
+                    if (wildcard.getType().equals("drawFour") && playTable.getWildDrawInRow() > 0)
                         return wildcard;
                     else if (wildcard.checkPlacingCondition(cards, playTable.getCardOnTable()))
                         return wildcard;
                 } else if (chosenCard instanceof ColoredCard) {
                     ColoredCard coloredCard = (ColoredCard) chosenCard;
-                    if(playTable.getDrawInRow()>0){
-                        if(chosenCard instanceof DrawCard)
-                            return ((DrawCard)chosenCard);
-                    }else{
+                    if (playTable.getDrawInRow() > 0) {
+                        if (chosenCard instanceof DrawCard)
+                            return ((DrawCard) chosenCard);
+                    } else {
                         if (coloredCard.checkPlacingCondition(playTable.getCardOnTable()))
                             return coloredCard;
                     }
@@ -147,45 +159,28 @@ public class Player {
         }
     }
     // a method for printing players cards
-    private void printCards() {
-        int index = 1;
+
+    private boolean mustAddCard() {
+        Card tableCard = playTable.getCardOnTable();
+        boolean mustAdd = true;
         for (Card card : cards) {
-            System.out.printf("%d - ", index);
-            if (card instanceof ActionCard) {
-                ActionCard actionCard = (ActionCard) card;
-                actionCard.print();
-            } else if (card instanceof Numerical) {
+            if (card instanceof Numerical) {
                 Numerical numCard = (Numerical) card;
-                numCard.print();
+                if (numCard.checkPlacingCondition(tableCard))
+                    mustAdd = false;
+            } else if (card instanceof ActionCard) {
+                ActionCard actionCard = (ActionCard) card;
+                if (actionCard.checkPlacingCondition(tableCard))
+                    mustAdd = false;
             } else if (card instanceof WildCard) {
                 WildCard wildCard = (WildCard) card;
-                wildCard.print();
-            }
-            index++;
-        }
-        if(mustAddCard())
-            System.out.printf("%d - add card\n",index);
-    }
-    private boolean mustAddCard(){
-        Card tableCard=playTable.getCardOnTable();
-        boolean mustAdd=true;
-        for(Card card :cards){
-            if(card instanceof Numerical){
-                Numerical numCard=(Numerical)card;
-                if(numCard.checkPlacingCondition(tableCard))
-                    mustAdd=false;
-            }else if(card instanceof ActionCard){
-                ActionCard actionCard=(ActionCard)card;
-                if(actionCard.checkPlacingCondition(tableCard))
-                    mustAdd=false;
-            }else if(card instanceof WildCard){
-                WildCard wildCard=(WildCard) card;
-                if(wildCard.checkPlacingCondition(cards,tableCard))
-                    mustAdd=false;
+                if (wildCard.checkPlacingCondition(cards, tableCard))
+                    mustAdd = false;
             }
         }
         return mustAdd;
     }
+
     // a method for picking seven random card from storage
     private void setInitialCards() {
         for (int i = 1; i <= 7; i++) {
@@ -221,6 +216,7 @@ public class Player {
     public String toString() {
         return String.format("Player %d -> %d score", playerId, getScore());
     }
+
     public void printPlayers() {
         //12 *5 characters
         ArrayList<Player> players = playTable.getPlayers();
@@ -230,11 +226,13 @@ public class Player {
                 if (players.get(index).getPlayerId() == this.playerId)
                     index = (index + 1) % players.size();
                 System.out.print("    ");//4 spaces
-                if (j == 1 || j == 5) {
-                    System.out.print("------------");
-                } else {
+                if(j==1)
+                    System.out.print("┍━━━━━━━━━━┑");
+                else if(j==5){
+                    System.out.print("┕━━━━━━━━━━┙");
+                }else {
                     if (j == 2)
-                        System.out.printf("| Player %d |", players.get(index).getPlayerId());
+                        System.out.printf("| Player%2d |", players.get(index).getPlayerId());
                     else if (j == 4) System.out.printf("| cards %2d |", players.get(index).getCards().size());
                     else System.out.print("|          |");
                 }
@@ -243,6 +241,43 @@ public class Player {
             System.out.println();
         }
     }
+
+    private void printCards() {
+        System.out.println("    Players Cards :");
+        String resetColor = "\u001B[0m";
+        for (int j = 1; j <= 7; j++) {
+            for (int i = 0; i < cards.size(); i++) {
+                String[] cardDetails = Player.cardDetails(cards.get(i));
+                String cardColor = cardDetails[3];
+                System.out.print("    ");
+                if(j==1)
+                    System.out.print(cardColor+"┍━━━━━━━━━━┑"+resetColor);
+                else if(j==6)
+                    System.out.print(cardColor+"┕━━━━━━━━━━┙"+resetColor);
+                else if (j == 2)
+                    System.out.printf("%s| %c        |%s", cardColor, cardDetails[1].charAt(0), resetColor);
+                else if (j == 3) System.out.printf("%s| %6s   |%s", cardColor, cardDetails[0], resetColor);
+                else if (j == 5) System.out.printf("%s| %5s    |%s", cardColor, cardDetails[2], resetColor);
+                else if (j == 7) System.out.printf("%s ---  %d --- %s", cardColor, i + 1, resetColor);
+                else if (j == 4) System.out.print(cardColor + "|          |" + resetColor);
+            }
+            if (mustAddCard()) {
+                String textColor="\u001B[96m";
+                System.out.print("    ");
+                if(j==1)
+                    System.out.print(textColor+"┍━━━━━━━━━━┑"+resetColor);
+                else if(j==6)
+                    System.out.print(textColor+"┕━━━━━━━━━━┙"+resetColor);
+                else if (j != 7 && j != 8)
+                    System.out.printf("%s|  %4s    |%s",textColor, j == 3 ? "Take" : j == 4 ? "Card" : " ",resetColor);
+                if (j == 7)
+                    System.out.printf("%s ---  %d --- %s",textColor, cards.size() + 1,resetColor);
+            }
+            System.out.println();
+        }
+    }
+
+
     public static String[] cardDetails(Card card) {
         StringBuilder str = new StringBuilder();
         char cardSymbol = 0;
@@ -262,16 +297,16 @@ public class Player {
         }
         if (card instanceof ColoredCard) {
             if (((ColoredCard) card).getColor().equals("Blue")) {
-                cardSymbol = 'B';
+                cardSymbol = '♣';
                 str.append("\u001B[34m");
             } else if (((ColoredCard) card).getColor().equals("Red")) {
-                cardSymbol = 'R';
+                cardSymbol = '♥';
                 str.append("\u001B[31m");
             } else if (((ColoredCard) card).getColor().equals("Yellow")) {
-                cardSymbol = 'Y';
+                cardSymbol = '♦';
                 str.append("\u001B[33m");
             } else if (((ColoredCard) card).getColor().equals("Green")) {
-                cardSymbol = 'G';
+                cardSymbol = '♠';
                 str.append("\u001B[92m");
             }
         } else {

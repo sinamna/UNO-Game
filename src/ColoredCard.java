@@ -29,7 +29,7 @@ public abstract class ColoredCard extends Card {
     /**
      * prints the card
      */
-    @Override
-    public abstract void print();
+//    @Override
+//    public abstract void print();
 
 }

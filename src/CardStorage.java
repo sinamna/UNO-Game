@@ -6,9 +6,13 @@ public class CardStorage {
     /**
      * constructs card storage with list of cards
      */
-    public CardStorage(){
+    public CardStorage(int numberOfPlayers){
         cards=new ArrayList<>();
-        setInitialState();
+        while(numberOfPlayers>0){
+            addSetOfCard();
+            numberOfPlayers-=15;
+        }
+
     }
 
     /**
@@ -32,28 +36,35 @@ public class CardStorage {
     }
 
     /**
-     * adds the first 108 card to storage
+     * adds the a set of 108 cards to storage
      */
-    private void setInitialState(){
+    private void addSetOfCard(){
         String[] colors={"Red","Green","Blue","Yellow"};
         for(String color:colors){
+            // adding numerical cards with specified color
             for(int i=0,j=1;i<10;i++,j++){
                 cards.add(new Numerical(color,i));
                 if(j<10) cards.add(new Numerical(color,j));
             }
-            //this part can be summerized using above loop and %5 trick
+            //adds a pair of each action cards with specified color
             for(int i=1;i<=2;i++){
                 cards.add(new DrawCard(color));
                 cards.add(new ReverseCard(color));
                 cards.add(new SkipCard(color));
             }
         }
+        // adds 8 wild cards
         for (int i=0;i<4;i++){
             cards.add(new WildCard("normal"));
             cards.add(new WildCard("drawFour"));
         }
     }
-    public void printStorage(){
-        System.out.println(cards.size());
+
+    /**
+     * gives the number of cards available in the storage
+     * @return the number of cards in storage
+     */
+    public int getSize(){
+        return cards.size();
     }
 }

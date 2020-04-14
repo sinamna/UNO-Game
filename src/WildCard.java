@@ -19,11 +19,14 @@ public class WildCard extends Card {
      */
     public void takeNextCardColor() {
         Scanner input = new Scanner(System.in);
+        String resetColor="\u001B[0m";
         String[] colors = {"Green", "Blue", "Yellow", "Red"};
         System.out.println("Which one you Choose? ");
         int index = 1;
         for (String color : colors) {
-            System.out.printf("%d - %s\n", index, color);
+            String textColor = color.equals("Green") ? "\u001B[92m" : color.equals("Yellow") ?
+                    "\u001B[33m" : color.equals("Red") ? "\u001B[31m" : "\u001B[34m";
+            System.out.printf("%s%d - %s%s\n",textColor, index, color,resetColor);
             index++;
         }
         nextCardColor = colors[input.nextInt() - 1];
@@ -46,10 +49,10 @@ public class WildCard extends Card {
         return type;
     }
 
-    @Override
-    public void print() {
-        System.out.println("WildCard - " + this.type);
-    }
+//    @Override
+//    public void print() {
+//        System.out.println("WildCard - " + this.type);
+//    }
 
     // action -> type comes handy
     public void action(Integer playerIndex, ArrayList<Player> players) {
@@ -73,7 +76,9 @@ public class WildCard extends Card {
         /*
             goes throw the cards and allows to put if no other cards could be placed on table
          */
+        if (this.type.equals("normal")) return true;
         boolean canPlace = true;
+
         for (Card card : playerCards) {
             if (card instanceof Numerical) {
                 Numerical numCard = (Numerical) card;

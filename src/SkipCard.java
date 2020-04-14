@@ -34,10 +34,10 @@ public class SkipCard extends ActionCard {
     /**
      * prints the
      */
-    @Override
-    public void print() {
-        System.out.println(this.getColor()+" Skip card");
-    }
+//    @Override
+//    public void print() {
+//        System.out.println(this.getColor()+" Skip card");
+//    }
 
     /**
      * does the action of skip card
@@ -45,7 +45,9 @@ public class SkipCard extends ActionCard {
      * @param players the list of players of the game
      */
     public void action(Integer playerIndex, ArrayList<Player> players){
-        System.out.printf("Player %d skipped \n",(playerIndex+1)%players.size()+1);
+        String resetColor = "\u001B[0m";
+        String textColor="\u001B[96m";
+        System.out.printf("%sPlayer %d skipped%s \n",textColor,players.get((playerIndex+1)%players.size()).getPlayerId(),resetColor);
         players.get((playerIndex+2)%players.size()).setPlayTurn(true);
     }
     /**

@@ -19,10 +19,10 @@ public class Numerical extends ColoredCard {
         return cardNumber;
     }
 
-    @Override
-    public void print() {
-        System.out.println(this.getColor()+" "+this.getCardNumber());
-    }
+//    @Override
+//    public void print() {
+//        System.out.println(this.getColor()+" "+this.getCardNumber());
+//    }
 
     /**
      * checks if numerical card can be placed on table or not
@@ -31,6 +31,9 @@ public class Numerical extends ColoredCard {
      */
     @Override
     public boolean checkPlacingCondition(Card card) {
+        /*
+        checks the card on table for similar number or color
+         */
         if (card instanceof Numerical) {
             Numerical numCard = (Numerical) card;
             return cardNumber == numCard.getCardNumber() || numCard.getColor().equals(this.getColor());

@@ -25,7 +25,7 @@ public class ReverseCard extends ActionCard {
 
         }else if(card instanceof WildCard){
             WildCard wildCard=(WildCard) card;
-            return wildCard.getNextCardColor().equals(this.getColor());
+            return wildCard.getNextCardColor()==null?true:wildCard.getNextCardColor().equals(this.getColor());
         }
         return false;
     }
@@ -33,10 +33,10 @@ public class ReverseCard extends ActionCard {
     /**
      * prints the card table
      */
-    @Override
-    public void print() {
-        System.out.println(this.getColor()+" Reverse card");
-    }
+//    @Override
+//    public void print() {
+//        System.out.println(this.getColor()+" Reverse card");
+//    }
 
     /**
      * reverse the game playing turns
@@ -45,6 +45,9 @@ public class ReverseCard extends ActionCard {
      */
     @Override
     public void action(Integer playerIndex, ArrayList<Player> players){
+        String resetColor = "\u001B[0m";
+        String textColor = "\u001B[96m";
+        System.out.println(textColor+"Play order reversed "+resetColor);
         Player tempPlayer=players.get(playerIndex);
         Collections.reverse(players);
         playerIndex=players.indexOf(tempPlayer);
@@ -58,6 +61,9 @@ public class ReverseCard extends ActionCard {
      */
     @Override
     public void firstAct(Integer playerIndex, ArrayList<Player> players) {
+        String resetColor = "\u001B[0m";
+        String textColor = "\u001B[96m";
+        System.out.println(textColor+"Play order reversed "+resetColor);
         players.get(playerIndex).setPlayTurn(false);
         Player tempPlayer=players.get(playerIndex);
         Collections.reverse(players);

@@ -12,7 +12,7 @@ public abstract class Card {
     /**
      * prints the card
      */
-    public abstract void print();
+//    public abstract void print();
 
     /**
      * gets the score of the card
