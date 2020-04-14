@@ -106,6 +106,16 @@ public class PlayTable {
     }
 
     /**
+     *
+     * @return next color should be placed on table
+     */
+    public String getNextColor() {
+        return nextColor;
+    }
+    public void resetColor(){
+        nextColor=null;
+    }
+    /**
      * place the first card on table when game starts
      */
     private void putFirstCard() {
@@ -248,7 +258,7 @@ public class PlayTable {
                     String textColor = nextColor.equals("Green") ? "\u001B[92m" : nextColor.equals("Yellow") ?
                             "\u001B[33m" : nextColor.equals("Red") ? "\u001B[31m" : "\u001B[34m";
                     System.out.print(textColor + "          " + nextColor + resetColor);
-                    nextColor = null;
+                    //nextColor = null;
                 }
             }
             else if(j==5) {

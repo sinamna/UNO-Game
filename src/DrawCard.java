@@ -29,24 +29,17 @@ public class DrawCard extends ActionCard {
         }
         return false;
     }
-
-//    @Override
-//    public void print() {
-//        System.out.println(this.getColor() + " draw card");
-//    }
-
     /**
      * does the action of draw card
-     *
      * @param playerIndex the index of player holding this card in players list
-     * @param players     the list of players of the game
+     * @param players  the list of players of the game
      */
     @Override
     public void action(Integer playerIndex, ArrayList<Player> players) {
         String resetColor = "\u001B[0m";
         String textColor = "\u001B[96m";
         int nextPlayerIndex = (playerIndex + 1) % players.size();
-        System.out.printf("%sPlayer %d lost its turn %s\n",textColor,players.get((playerIndex + 1) % players.size()).getPlayerId()
+        System.out.printf("%sPlayer %d lost its turn & got few cards %s\n",textColor,players.get((playerIndex + 1) % players.size()).getPlayerId()
                 ,resetColor);
         for (int i = 1; i < 3; i++) players.get(nextPlayerIndex).takeCard();
         players.get((playerIndex + 2) % players.size()).setPlayTurn(true);

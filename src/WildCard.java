@@ -29,7 +29,15 @@ public class WildCard extends Card {
             System.out.printf("%s%d - %s%s\n",textColor, index, color,resetColor);
             index++;
         }
-        nextCardColor = colors[input.nextInt() - 1];
+        while (true){
+            try{
+                nextCardColor = colors[input.nextInt() - 1];
+                break;
+            }catch(Exception e){
+                System.out.println("Please enter correct number : ");
+            }
+        }
+
 
     }
 
