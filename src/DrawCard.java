@@ -25,7 +25,8 @@ public class DrawCard extends ActionCard {
             }
         } else if (card instanceof WildCard) {
             WildCard wildCard = (WildCard) card;
-            return wildCard.getNextCardColor().equals(this.getColor());
+            //if there will be several wild cards in a row one of nextColors will be null
+            return wildCard.getNextCardColor()==null?true:wildCard.getNextCardColor().equals(this.getColor());
         }
         return false;
     }
@@ -39,7 +40,7 @@ public class DrawCard extends ActionCard {
         String resetColor = "\u001B[0m";
         String textColor = "\u001B[96m";
         int nextPlayerIndex = (playerIndex + 1) % players.size();
-        System.out.printf("%sPlayer %d lost its turn & got few cards %s\n",textColor,players.get((playerIndex + 1) % players.size()).getPlayerId()
+        System.out.printf("%sPlayer %d lost its turn & got few cards - Draw%s\n",textColor,players.get(nextPlayerIndex).getPlayerId()
                 ,resetColor);
         for (int i = 1; i < 3; i++) players.get(nextPlayerIndex).takeCard();
         players.get((playerIndex + 2) % players.size()).setPlayTurn(true);
@@ -57,7 +58,7 @@ public class DrawCard extends ActionCard {
         String resetColor = "\u001B[0m";
         String textColor = "\u001B[96m";
         players.get(playerIndex).setPlayTurn(false);
-        System.out.printf("%sPlayer %d lost its turn %s\n",textColor,players.get((playerIndex + 1) % players.size()).getPlayerId(),
+        System.out.printf("%sPlayer %d lost its turn %s\n",textColor,players.get(playerIndex).getPlayerId(),
                 resetColor);
         for (int i = 1; i <= 2; i++) players.get(playerIndex).takeCard();
         players.get((playerIndex + 1) % players.size()).setPlayTurn(true);

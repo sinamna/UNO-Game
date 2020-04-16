@@ -26,7 +26,7 @@ public class SkipCard extends ActionCard {
             }
         }else if(card instanceof WildCard){
             WildCard wildCard=(WildCard) card;
-            return wildCard.getNextCardColor().equals(this.getColor());
+            return wildCard.getNextCardColor()==null?true:wildCard.getNextCardColor().equals(this.getColor());
         }
         return false;
     }

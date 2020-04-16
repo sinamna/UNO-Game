@@ -94,6 +94,11 @@ public class WildCard extends Card {
      */
         if (type.equals("drawFour")) {
             this.pickNextCardColor(className);
+            String resetColor = "\u001B[0m";
+            String textColor = "\u001B[96m";
+            int nextPlayerIndex = (playerIndex + 1) % players.size();
+            System.out.printf("%sPlayer %d lost its turn & got few cards - Wild Draw %s\n",textColor,
+                    players.get(nextPlayerIndex).getPlayerId(),resetColor);
             players.get((playerIndex + 2) % players.size()).setPlayTurn(true);
             for (int i = 1; i <= 4; i++) players.get((playerIndex + 1) % players.size()).takeCard();
         } else {

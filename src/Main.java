@@ -9,9 +9,9 @@ public class Main {
         PlayTable playTable=new PlayTable(storage);
         //for(int i=1;i<=numberOfPlayers;i++)playTable.addPlayer(new Player(i,storage,playTable));
         playTable.addPlayer(new Player(1,storage,playTable));
-        playTable.addPlayer(new Player(2,storage,playTable));
+        playTable.addPlayer(new Ai(2,storage,playTable));
         playTable.addPlayer(new Ai(3,storage,playTable));
-        playTable.addPlayer(new Ai(4,storage,playTable));
+        //playTable.addPlayer(new Ai(4,storage,playTable));
         playTable.playGame();
 
         playTable.printScoreBoard();

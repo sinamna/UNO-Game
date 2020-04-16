@@ -22,7 +22,6 @@ public class ReverseCard extends ActionCard {
                 ActionCard actionCard=(ActionCard) card;
                 return actionCard.getColor().equals(this.getColor());
             }
-
         }else if(card instanceof WildCard){
             WildCard wildCard=(WildCard) card;
             return wildCard.getNextCardColor()==null?true:wildCard.getNextCardColor().equals(this.getColor());

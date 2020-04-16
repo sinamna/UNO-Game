@@ -15,6 +15,8 @@ public abstract class ActionCard extends ColoredCard{
      * @return returns true if action card can be placed on table and false if it can't
      */
     public abstract boolean checkPlacingCondition(Card card);
-    public abstract void action(Integer playerIndex, ArrayList<Player> players);
+    public void action(Integer playerIndex, ArrayList<Player> players){
+
+    }
     public abstract void firstAct(Integer playerIndex,ArrayList<Player>players);
 }

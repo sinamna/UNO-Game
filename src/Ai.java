@@ -1,9 +1,20 @@
 import java.util.ArrayList;
 
 public class Ai extends Player {
+    /**
+     * constructs AI with specified fields
+     * @param playerId the id of Ai
+     * @param storage the storage of cards
+     * @param playTable the table with players play On
+     */
     public Ai (int playerId,CardStorage storage,PlayTable playTable){
         super(playerId,storage,playTable);
     }
+
+    /**
+     * chooses card
+     * @return the card that Ai had chosen
+     */
     @Override
     public Card chooseCard() {
          /*
