@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class WildCard extends Card {
@@ -6,19 +7,19 @@ public class WildCard extends Card {
     private String type;
     private String nextCardColor;
 
+    /**
+     * constructs a wildCard with specified type
+     * @param type the type of wildCard which is either normal or drawFour
+     */
     public WildCard(String type) {
         super(50);
         this.type = type;
         nextCardColor = null;
     }
-
-    // a method to take user input for choosing nextCardColor
-
     /**
-     * Takes the color of next card from user
+     * chooses the next Color for cards
      */
-    public void takeNextCardColor() {
-        Scanner input = new Scanner(System.in);
+    private void pickNextCardColor(String className) {
         String resetColor="\u001B[0m";
         String[] colors = {"Green", "Blue", "Yellow", "Red"};
         System.out.println("Which one you Choose? ");
@@ -29,6 +30,33 @@ public class WildCard extends Card {
             System.out.printf("%s%d - %s%s\n",textColor, index, color,resetColor);
             index++;
         }
+        // if ai is playing the game it will choose a random color but if an actual player is playing
+        // the game it will take the color from the user
+        if(className.equals("Player"))takeNextCardColor();
+        else randomNextColor();
+    }
+
+    /**
+     * randomly chooses the next color for AI players
+     */
+    private void randomNextColor(){
+        String[] colors = {"Green", "Blue", "Yellow", "Red"};
+        String resetColor="\u001B[0m";
+
+        Random ranGen=new Random();
+        int randomIndex=ranGen.nextInt(4);
+        nextCardColor=colors[randomIndex];
+        String textColor = nextCardColor.equals("Green") ? "\u001B[92m" : nextCardColor.equals("Yellow") ?
+                "\u001B[33m" : nextCardColor.equals("Red") ? "\u001B[31m" : "\u001B[34m";
+        System.out.println(textColor+nextCardColor+resetColor+" is chosen.");
+    }
+
+    /**
+     * takes the color from user
+     */
+    private void takeNextCardColor(){
+        Scanner input=new Scanner (System.in);
+        String[] colors = {"Green", "Blue", "Yellow", "Red"};
         while (true){
             try{
                 nextCardColor = colors[input.nextInt() - 1];
@@ -37,10 +65,7 @@ public class WildCard extends Card {
                 System.out.println("Please enter correct number : ");
             }
         }
-
-
     }
-
     /**
      *
      * @return returns the color of next Card that should be on table
@@ -51,25 +76,28 @@ public class WildCard extends Card {
 
     /**
      *
-     * @return  the type of WildCard (Normal or fourDraw)
+     * @return the type of WildCard (Normal or fourDraw)
      */
     public String getType() {
         return type;
     }
 
-//    @Override
-//    public void print() {
-//        System.out.println("WildCard - " + this.type);
-//    }
-
-    // action -> type comes handy
-    public void action(Integer playerIndex, ArrayList<Player> players) {
+    /**
+     * does the action of wild card
+     * @param playerIndex the index of player in the list
+     * @param players the list of players
+     * @param className the type of user who puts this card , Player or AI
+     */
+    public void action(Integer playerIndex, ArrayList<Player> players,String className) {
+    /*
+    draw four card plus setting next color gives 4 cards to the next Player and takes it turns
+     */
         if (type.equals("drawFour")) {
-            this.takeNextCardColor();
+            this.pickNextCardColor(className);
             players.get((playerIndex + 2) % players.size()).setPlayTurn(true);
             for (int i = 1; i <= 4; i++) players.get((playerIndex + 1) % players.size()).takeCard();
         } else {
-            this.takeNextCardColor();
+            this.pickNextCardColor(className);
             players.get((playerIndex + 1) % players.size()).setPlayTurn(true);
         }
     }
@@ -86,7 +114,6 @@ public class WildCard extends Card {
          */
         if (this.type.equals("normal")) return true;
         boolean canPlace = true;
-
         for (Card card : playerCards) {
             if (card instanceof Numerical) {
                 Numerical numCard = (Numerical) card;

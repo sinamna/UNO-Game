@@ -30,7 +30,6 @@ public class SkipCard extends ActionCard {
         }
         return false;
     }
-
     /**
      * prints the
      */

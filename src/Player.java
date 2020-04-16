@@ -2,6 +2,7 @@
 import java.awt.*;
 import java.net.BindException;
 import java.util.*;
+import java.lang.reflect.*;
 
 public class Player {
     private ArrayList<Card> cards;
@@ -60,37 +61,6 @@ public class Player {
         this.setPlayTurn(false);
     }
 
-    /**
-     * checks if next player has a draw card or not
-     * @param nextPlayerCards the card list of next player
-     * @return returns true if next player has a draw card and false if it doesn't
-     */
-    private boolean nextDrawFound(ArrayList<Card> nextPlayerCards) {
-        boolean found = false;
-        for (Card card : nextPlayerCards) {
-            if (card instanceof DrawCard) {
-                found = true;
-                break;
-            }
-        }
-        return found;
-    }
-
-    /**
-     * checks if next player has a wild draw card or not
-     * @param nextPlayerCards the card list of next player
-     * @return returns true if next player has a wild draw card and false if it doesn't
-     */
-    private boolean nextWildDrawFound(ArrayList<Card> nextPlayerCards) {
-        boolean found = false;
-        for (Card card : nextPlayerCards) {
-            if (card instanceof WildCard && ((WildCard) card).getType().equals("drawFour")) {
-                found = true;
-                break;
-            }
-        }
-        return found;
-    }
 
     /**
      * performs the action of the card which player had chosen
@@ -98,7 +68,7 @@ public class Player {
      * @param playerTurnIndex the index of current player in the list
      * @param chosenCard the card player picked
      */
-    private void cardAction(ArrayList<Player> players, Integer playerTurnIndex, Card chosenCard) {
+    protected void cardAction(ArrayList<Player> players, Integer playerTurnIndex, Card chosenCard) {
         /*
         for draw and wild draw cards ->first checks if nextPlayer has same card ,in that case increase
         a the count of draws or wildDraws in a row in order to use them to give extra cards in the turn of player
@@ -108,24 +78,37 @@ public class Player {
         ------------------------
         for other cards simply performs its action
          */
+        Scanner input=new Scanner(System.in);
+        Card cardOnTable=playTable.getCardOnTable();
         Player nextPlayer = players.get((playerTurnIndex + 1) % players.size());
         if (chosenCard instanceof ColoredCard) {
             if (chosenCard instanceof DrawCard) {
-                if (nextDrawFound(nextPlayer.getCards()) && ((DrawCard) chosenCard).checkPlacingCondition(playTable.getCardOnTable())) {
-                    playTable.increaseDrawNum();
-                    nextPlayer.setPlayTurn(true);
+                DrawCard drawCard = (DrawCard) chosenCard;
+                if (nextDrawFound(nextPlayer.getCards()) && drawCard.checkPlacingCondition(cardOnTable)) {
+                    System.out.println("\u001B[96m"+"enter 'y' if u wish to add another draw on this :"+"\u001B[0m");
+                    String choice=null;
+                    if(this instanceof Ai){
+                        choice="n";
+                        System.out.println("n");
+                    }else
+                        choice=input.next();
+                    if(choice.charAt(0)=='y'){
+                        playTable.increaseDrawNum();
+                        nextPlayer.setPlayTurn(true);
+                    }else
+                        drawCard.action(playerTurnIndex, players);
                 } else {
                     if (playTable.getDrawInRow() > 0) {
                         for (int i = 1; i <= playTable.getDrawInRow(); i++)
                             for (int j = 1; j <= 2; j++)
                                 nextPlayer.takeCard();
                     }
-                    DrawCard drawCard = (DrawCard) chosenCard;
                     drawCard.action(playerTurnIndex, players);
                     playTable.resetDrawNum();
                 }
             } else {
                 ((ColoredCard) chosenCard).action(playerTurnIndex, players);
+                //reverses the play order of the game
                 if (chosenCard instanceof ReverseCard)
                     playTable.reversePlayOrder();
 
@@ -134,19 +117,32 @@ public class Player {
                 playTable.resetColor();
 
         } else if (chosenCard instanceof WildCard) {
+            WildCard wildCard=(WildCard)chosenCard;
             Player thisPlayer = players.get(playerTurnIndex);
-            boolean canPlaceCard = ((WildCard) chosenCard).checkPlacingCondition(thisPlayer.getCards(), playTable.getCardOnTable());
-            if (nextWildDrawFound(nextPlayer.getCards()) && canPlaceCard && ((WildCard) chosenCard).getType().equals("drawFour")) {
-                playTable.increaseWildNum();
-                nextPlayer.setPlayTurn(true);
+            boolean canPlaceCard = wildCard.checkPlacingCondition(thisPlayer.getCards(), cardOnTable);
+            if (nextWildDrawFound(nextPlayer.getCards()) && canPlaceCard && wildCard.getType().equals("drawFour")) {
+                System.out.println("\u001B[96m"+"enter 'y' if u wish to add another Wild draw4 on this :"+"\u001B[0m");
+                String choice=null;
+                if(this instanceof Ai){
+                    choice="n";
+                    System.out.println("n");
+                }else
+                    choice=input.next();
+                if(choice.charAt(0)=='y'){
+                    playTable.increaseWildNum();
+                    nextPlayer.setPlayTurn(true);
+                }else{
+                    wildCard.action(playerTurnIndex, players,this.getClass().getName());
+                    playTable.setNextColor((wildCard.getNextCardColor()));
+                }
             } else {
                 if (playTable.getWildDrawInRow() > 0) {
                     for (int i = 1; i <= playTable.getWildDrawInRow(); i++)
                         for (int j = 1; j <= 4; i++)
                             nextPlayer.takeCard();
                 }
-                ((WildCard) chosenCard).action(playerTurnIndex, players);
-                playTable.setNextColor(((WildCard) chosenCard).getNextCardColor());
+                wildCard.action(playerTurnIndex, players,this.getClass().getName());
+                playTable.setNextColor((wildCard.getNextCardColor()));
                 playTable.resetWildNum();
             }
         }
@@ -154,18 +150,33 @@ public class Player {
         playTable.putCardOnTable(chosenCard);
         cards.remove(chosenCard);
     }
-
-    // a method for choosing a card from the list
+    /**
+     * allow player to choose a card from its list
+     * @return returns the chosen card
+     */
     public Card chooseCard() {
+        /*
+        if there are some draws or wildDraws which previous players had placed in a row , and current player has the same
+        card , it controls that player only choose that specific card
+        if not , player can choose any card and if card had the condition to place on table it returns the card
+            and if not it prints proper error and takes another card
+         */
         Scanner input = new Scanner(System.in);
+        Card cardOnTable=playTable.getCardOnTable();
         if (playTable.getWildDrawInRow() > 0 || playTable.getDrawInRow() > 0) {
             System.out.printf("You must choose %s \n", playTable.getDrawInRow() > 0 ? "Draw card" : "WildCard draw4");
         } else {
             System.out.println("Which card do you choose ?");
         }
+        //the loop and try-catch block handles that the card be chosen correctly
+        //and prints error when its not
         while (true) {
             try {
                 int cardIndex = input.nextInt();
+                input.nextLine();
+                // it condition which there is no proper card to be placed , player gets to choose max number to
+                // add card from storage to its list
+                //null value returned is handled in playTrun method
                 if (cardIndex == cards.size() + 1 && this.mustAddCard()) {
                     cards.add(cardStorage.randomPicking());
                     return null;
@@ -173,17 +184,21 @@ public class Player {
                 Card chosenCard = cards.get(cardIndex - 1);
                 if (chosenCard instanceof WildCard) {
                     WildCard wildcard = (WildCard) chosenCard;
+                    //handles that player choose only wildDraw card in specific condition
+                    //if previous player placed drawFour this player can place card even if it doesn't fit
+                    // the placing condition
                     if (wildcard.getType().equals("drawFour") && playTable.getWildDrawInRow() > 0)
                         return wildcard;
-                    else if (wildcard.checkPlacingCondition(cards, playTable.getCardOnTable()))
+                    else if (wildcard.checkPlacingCondition(cards, cardOnTable))
                         return wildcard;
                 } else if (chosenCard instanceof ColoredCard) {
                     ColoredCard coloredCard = (ColoredCard) chosenCard;
+                    // handles that player choose only draw card in specific condition
                     if (playTable.getDrawInRow() > 0) {
-                        if (chosenCard instanceof DrawCard)
-                            return ((DrawCard) chosenCard);
+                        if (coloredCard instanceof DrawCard)
+                            return coloredCard;
                     } else {
-                        if (coloredCard.checkPlacingCondition(playTable.getCardOnTable()))
+                        if (coloredCard.checkPlacingCondition(cardOnTable))
                             return coloredCard;
                     }
                 }
@@ -194,9 +209,13 @@ public class Player {
             }
         }
     }
-    // a method for printing players cards
 
-    private boolean mustAddCard() {
+    /**
+     * goes throw all cards and checks if there is no proper card to choose and must add a new card
+     * @return returns true if there is no card to place in table , and false if there is at least one
+     *      proper card
+     */
+    protected boolean mustAddCard() {
         Card tableCard = playTable.getCardOnTable();
         boolean mustAdd = true;
         for (Card card : cards) {
@@ -217,6 +236,42 @@ public class Player {
         return mustAdd;
     }
 
+    /**
+     * checks if next player has a draw card or not
+     * @param nextPlayerCards the card list of next player
+     * @return returns true if next player has a draw card and false if it doesn't
+     */
+    protected boolean nextDrawFound(ArrayList<Card> nextPlayerCards) {
+        boolean found = false;
+        for (Card card : nextPlayerCards) {
+            if (card instanceof DrawCard) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    /**
+     * checks if next player has a wild draw card or not
+     * @param nextPlayerCards the card list of next player
+     * @return returns true if next player has a wild draw card and false if it doesn't
+     */
+    protected boolean nextWildDrawFound(ArrayList<Card> nextPlayerCards) {
+        boolean found = false;
+        for (Card card : nextPlayerCards) {
+            if (card instanceof WildCard && ((WildCard) card).getType().equals("drawFour")) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    /**
+     * calculates player score based on cards score
+     * @return the score of player
+     */
     public int getScore() {
         int playerScore = 0;
         for (Card card : cards) {
@@ -225,20 +280,29 @@ public class Player {
         return playerScore;
     }
 
+    /**
+     * gives player details
+     * @return the string representing player and its score
+     */
     @Override
     public String toString() {
         return String.format("Player %d -> %d score", playerId, getScore());
     }
 
+    /**
+     * prints the player in graphic
+     */
     public void printPlayers() {
         //12 *5 characters
         ArrayList<Player> players = playTable.getPlayers();
         for (int j = 1; j <= 5; j++) {
             int index = 0;
             for (int k = 0; k < playTable.getPlayers().size() - 1; k++) {
+                //moves to counter to next player to avoid printing current player details
                 if (players.get(index).getPlayerId() == this.playerId)
                     index = (index + 1) % players.size();
                 System.out.print("    ");//4 spaces
+                //top and bottom of box
                 if (j == 1)
                     System.out.print("┍━━━━━━━━━━┑");
                 else if (j == 5) {
@@ -255,11 +319,20 @@ public class Player {
         }
     }
 
-    private void printCards() {
+    /**
+     * prints the list of cards
+     */
+    protected void printCards() {
         System.out.println("    Players Cards :");
         String resetColor = "\u001B[0m";
         for (int j = 1; j <= 7; j++) {
             for (int i = 0; i < cards.size(); i++) {
+                /*
+                String [0] the type of the card
+                String [1] character representing the card
+                String [2] the extra info about card
+                String [3] the color of the card
+                 */
                 String[] cardDetails = Player.cardDetails(cards.get(i));
                 String cardColor = cardDetails[3];
                 System.out.print("    ");
@@ -274,6 +347,7 @@ public class Player {
                 else if (j == 7) System.out.printf("%s ---  %d --- %s", cardColor, i + 1, resetColor);
                 else if (j == 4) System.out.print(cardColor + "|          |" + resetColor);
             }
+            // adds a new card-like box at the end of the list to show player the option to choose to add card
             if (mustAddCard()) {
                 String textColor = "\u001B[96m";
                 System.out.print("    ");
@@ -290,7 +364,11 @@ public class Player {
         }
     }
 
-
+    /**
+     * creates a customized list to use for printing students details
+     * @param card the card which details want to be made
+     * @return returns an array of String representing card details
+     */
     public static String[] cardDetails(Card card) {
         StringBuilder str = new StringBuilder();
         char cardSymbol = 0;
@@ -326,38 +404,83 @@ public class Player {
             cardSymbol = 'W';
             str.append("\u001B[37m");
         }
+        /*
+                String [0] the type of the card
+                String [1] character representing the card
+                String [2] the extra info about card
+                String [3] the color of the card
+                 */
         return str.toString().replace('c', cardSymbol).split("/");
     }
 
+    /**
+     *
+     * @return the id of the player
+     */
     public int getPlayerId() {
         return playerId;
     }
 
+    /**
+     *
+     * @return the list of cards of player
+     */
     public ArrayList<Card> getCards() {
         return cards;
     }
 
-    // a method for picking seven random card from storage
+    /**
+     * adding first 7 cards in first state
+     */
     private void setInitialCards() {
         for (int i = 1; i <= 7; i++) {
             cards.add(cardStorage.randomPicking());
         }
     }
 
+    /**
+     * takes card from storage
+     */
     public void takeCard() {
         cards.add(cardStorage.randomPicking());
     }
 
+    /**
+     *
+     * @return the playTurn of the player
+     */
     public boolean getPlayTurn() {
         return playTurn;
     }
 
+    /**
+     * changing the playTrun of player
+     * @param playTurn the playTurn of player
+     */
     public void setPlayTurn(boolean playTurn) {
         this.playTurn = playTurn;
     }
 
+    /**
+     * @return the number of cards
+     */
     public int getCardNumber() {
         return cards.size();
     }
 
+    /**
+     *  gives the subClasse the storage
+     * @return the storage of cards
+     */
+    protected CardStorage getCardStorage() {
+        return cardStorage;
+    }
+
+    /**
+     * gives the subClasse the playTable
+     * @return the playTable
+     */
+    protected PlayTable getPlayTable() {
+        return playTable;
+    }
 }
