@@ -11,7 +11,7 @@ public class PlayTable {
     private int playOrder;
     /**
      * constructs a play table with specified card storage in it
-     * @param cardStorage
+     * @param cardStorage the card storage
      */
     public PlayTable(CardStorage cardStorage) {
         this.cardStorage = cardStorage;
@@ -68,7 +68,7 @@ public class PlayTable {
 
     /**
      * gets the number of wild draws which came in a row
-     * @return
+     * @return the number of draws in row
      */
     public int getDrawInRow() {
         return drawInRow;
@@ -87,7 +87,7 @@ public class PlayTable {
 
     /**
      * adds player to the game
-     * @param player
+     * @param player the play to add
      */
     public void addPlayer(Player player){
         players.add(player);
@@ -170,7 +170,7 @@ public class PlayTable {
     /**
      * start playing game
      */
-    public void playGame(){
+    public void playGame() throws InterruptedException {
         Random randomGen=new Random();
         /*
         first , a player is randomly chosen to start the game
@@ -188,6 +188,7 @@ public class PlayTable {
         }
         while(!endingCondition()){
             if(players.get(playerIndex).getPlayTurn()) {
+                Thread.sleep(1000);
                 players.get(playerIndex).playTurn(playerIndex);
             }
             playerIndex = (playerIndex + 1) % players.size();
@@ -267,14 +268,14 @@ public class PlayTable {
                 // third part -  prints the play order of game
                 System.out.printf("    %s%s%s","\u001B[96m",playOrder==1?"Clockwise ↻":"Anti-Clockwise ↺",resetColor);
             }
-            else if(j==4) {
+            else {
                 //body of the card
                 System.out.print(cardColor + "|          |" + resetColor);
                 //third part - prints the storage status
                 System.out.printf("%s    Storage : %d cards %s","\u001B[96m",cardStorage.getSize(),resetColor);
             }
             //body of the card
-            else System.out.print(cardColor+"|          |"+resetColor);
+            //else System.out.print(cardColor+"|          |"+resetColor);
 
             System.out.println();
         }
