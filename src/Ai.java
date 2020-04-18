@@ -16,7 +16,7 @@ public class Ai extends Player {
      * @return the card that Ai had chosen
      */
     @Override
-    public Card chooseCard() {
+    public Card chooseCard() throws InterruptedException {
          /*
          if player doesn't have card to place it will add new one from storage
          otherwise it goes throw the list and puts the first card possible to be placed
@@ -64,6 +64,7 @@ public class Ai extends Player {
             index++;
         }
         System.out.printf("card %d is chosen\n",index);
+        Thread.sleep(1000);
         return cardToReturn;
     }
 }

@@ -188,7 +188,6 @@ public class PlayTable {
         }
         while(!endingCondition()){
             if(players.get(playerIndex).getPlayTurn()) {
-                Thread.sleep(1000);
                 players.get(playerIndex).playTurn(playerIndex);
             }
             playerIndex = (playerIndex + 1) % players.size();

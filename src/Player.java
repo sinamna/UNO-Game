@@ -31,7 +31,8 @@ public class Player {
      * players action is done
      * @param playerTurnIndex the index of player who has to play in the list
      */
-    public void playTurn(Integer playerTurnIndex) {
+    //the exception is thrown because of overridden method in Ai class
+    public void playTurn(Integer playerTurnIndex) throws InterruptedException {
         System.out.println("_____________________________________________________________________________________________________");
         this.printPlayers();
         playTable.printTable(getPlayerId());
@@ -86,7 +87,7 @@ public class Player {
                 DrawCard drawCard = (DrawCard) chosenCard;
                 if (nextDrawFound(nextPlayer.getCards()) && drawCard.checkPlacingCondition(cardOnTable)) {
                     System.out.println("\u001B[96m"+"enter 'y' if u wish to add another draw on this :"+"\u001B[0m");
-                    String choice=null;
+                    String choice;
                     if(this instanceof Ai){
                         choice="n";
                         System.out.println("n");
@@ -122,7 +123,7 @@ public class Player {
             boolean canPlaceCard = wildCard.checkPlacingCondition(thisPlayer.getCards(), cardOnTable);
             if (nextWildDrawFound(nextPlayer.getCards()) && canPlaceCard && wildCard.getType().equals("drawFour")) {
                 System.out.println("\u001B[96m"+"enter 'y' if u wish to add another Wild draw4 on this :"+"\u001B[0m");
-                String choice=null;
+                String choice;
                 if(this instanceof Ai){
                     choice="n";
                     System.out.println("n");
@@ -138,7 +139,7 @@ public class Player {
             } else {
                 if (playTable.getWildDrawInRow() > 0) {
                     for (int i = 1; i <= playTable.getWildDrawInRow(); i++)
-                        for (int j = 1; j <= 4; i++)
+                        for (int j = 1; j <= 4; j++)
                             nextPlayer.takeCard();
                 }
                 wildCard.action(playerTurnIndex, players,this.getClass().getName());
@@ -154,7 +155,7 @@ public class Player {
      * allow player to choose a card from its list
      * @return returns the chosen card
      */
-    public Card chooseCard() {
+    public Card chooseCard() throws InterruptedException {
         /*
         if there are some draws or wildDraws which previous players had placed in a row , and current player has the same
         card , it controls that player only choose that specific card
@@ -203,10 +204,10 @@ public class Player {
                     }
                 }
                 System.out.println("This Card can not be placed on table");
-
             } catch (Exception e) {
                 System.out.println("Please enter the correct number");
             }
+            input.nextLine();
         }
     }
 
@@ -345,7 +346,7 @@ public class Player {
                 else if (j == 3) System.out.printf("%s| %6s   |%s", cardColor, cardDetails[0], resetColor);
                 else if (j == 5) System.out.printf("%s| %5s    |%s", cardColor, cardDetails[2], resetColor);
                 else if (j == 7) System.out.printf("%s ---  %d --- %s", cardColor, i + 1, resetColor);
-                else if (j == 4) System.out.print(cardColor + "|          |" + resetColor);
+                else System.out.print(cardColor + "|          |" + resetColor);
             }
             // adds a new card-like box at the end of the list to show player the option to choose to add card
             if (mustAddCard()) {
@@ -387,18 +388,23 @@ public class Player {
                 str.append("Wild/c/Dfour/");
         }
         if (card instanceof ColoredCard) {
-            if (((ColoredCard) card).getColor().equals("Blue")) {
-                cardSymbol = '♣';
-                str.append("\u001B[34m");
-            } else if (((ColoredCard) card).getColor().equals("Red")) {
-                cardSymbol = '♥';
-                str.append("\u001B[31m");
-            } else if (((ColoredCard) card).getColor().equals("Yellow")) {
-                cardSymbol = '♦';
-                str.append("\u001B[33m");
-            } else if (((ColoredCard) card).getColor().equals("Green")) {
-                cardSymbol = '♠';
-                str.append("\u001B[92m");
+            switch (((ColoredCard) card).getColor()) {
+                case "Blue":
+                    cardSymbol = '♣';
+                    str.append("\u001B[34m");
+                    break;
+                case "Red":
+                    cardSymbol = '♥';
+                    str.append("\u001B[31m");
+                    break;
+                case "Yellow":
+                    cardSymbol = '♦';
+                    str.append("\u001B[33m");
+                    break;
+                case "Green":
+                    cardSymbol = '♠';
+                    str.append("\u001B[92m");
+                    break;
             }
         } else {
             cardSymbol = 'W';
